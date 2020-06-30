@@ -72,12 +72,14 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="libs\headsetcontrol.exe">
+    <ContentWithTargetPath Include="libs\headsetcontrol.exe">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="libs\libhidapi-0.dll">
+      <TargetPath>headsetcontrol.exe</TargetPath>
+   </ContentWithTargetPath>
+    <ContentWithTargetPath Include="libs\libhidapi-0.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
+      <TargetPath>libhidapi-0.dll</TargetPath>
+   </ContentWithTargetPath>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

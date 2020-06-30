@@ -70,8 +70,6 @@ namespace HeadsetControl_Tray_Windows
 			string chargeStatusString;
 			ChargeStatus chargeStatus = GetChargeStatus(out chargeStatusString);
 			_graphics.Clear(Color.Transparent);
-			int x = -4;
-			int y = -2;
 			switch (chargeStatus)
 			{
 				case ChargeStatus.Disconnected:
