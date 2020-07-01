@@ -3,7 +3,9 @@ using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Windows.Forms;
+using Timer = System.Windows.Forms.Timer;
 
 namespace HeadsetControl_Tray_Windows
 {
@@ -31,7 +33,6 @@ namespace HeadsetControl_Tray_Windows
 		private Graphics _graphics;
 		private Regex _regex;
 		private SolidBrush _brush;
-
 
 		#endregion
 
@@ -67,25 +68,32 @@ namespace HeadsetControl_Tray_Windows
 
 		private void UpdateIcon()
 		{
-			string chargeStatusString;
-			ChargeStatus chargeStatus = GetChargeStatus(out chargeStatusString);
-			_graphics.Clear(Color.Transparent);
-			switch (chargeStatus)
+			try
 			{
-				case ChargeStatus.Disconnected:
-					_graphics.DrawString(chargeStatusString, _fontDiconnected, _brush, 0, -9);
-					break;
-				case ChargeStatus.Charging:
-					//_graphics.DrawString(chargeStatusString, _fontCharging, _brush, 0, -2);
-					TextRenderer.DrawText(_graphics, chargeStatusString, _fontCharging, new Point(-4, -3), Color.White);
-					break;
-				case ChargeStatus.Discharging:
-					_graphics.DrawString(chargeStatusString, _fontDischarging, _brush, -4, -2);
-					break;
-			}
+				string chargeStatusString;
+				ChargeStatus chargeStatus = GetChargeStatus(out chargeStatusString);
+				_graphics.Clear(Color.Transparent);
+				switch (chargeStatus)
+				{
+					case ChargeStatus.Disconnected:
+						_graphics.DrawString(chargeStatusString, _fontDiconnected, _brush, 0, -9);
+						break;
+					case ChargeStatus.Charging:
+						//_graphics.DrawString(chargeStatusString, _fontCharging, _brush, 0, -2);
+						TextRenderer.DrawText(_graphics, chargeStatusString, _fontCharging, new Point(-4, -3), Color.White);
+						break;
+					case ChargeStatus.Discharging:
+						_graphics.DrawString(chargeStatusString, _fontDischarging, _brush, -4, -2);
+						break;
+				}
 
-			IntPtr hIcon = _bitmap.GetHicon();
-			_notifyIcon.Icon = Icon.FromHandle(hIcon);
+				IntPtr hIcon = _bitmap.GetHicon();
+				_notifyIcon.Icon = Icon.FromHandle(hIcon);
+			}
+			catch (Exception ex)
+			{
+				ThreadPool.QueueUserWorkItem(o => MessageBox.Show(ex.ToString(), "HeadsetControl Tray"));
+			}
 		}
 
 		private ChargeStatus GetChargeStatus(out string chargeStatusString)
@@ -109,6 +117,8 @@ namespace HeadsetControl_Tray_Windows
 				else
 				{
 					chargeStatusString = value.PadLeft(2, '0');
+					if (chargeStatusString == "100")
+						chargeStatusString = "99";
 					return ChargeStatus.Discharging;
 				}
 			}
