@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Text;
+using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Windows.Forms;
@@ -13,6 +14,9 @@ namespace HeadsetControl_Tray_Windows
 	{
 		#region Enums
 
+
+		[System.Runtime.InteropServices.DllImport("user32.dll", CharSet=CharSet.Auto)]
+		static extern bool DestroyIcon(IntPtr handle);
 		private enum ChargeStatus
 		{
 			Disconnected,
@@ -33,6 +37,7 @@ namespace HeadsetControl_Tray_Windows
 		private Graphics _graphics;
 		private Regex _regex;
 		private SolidBrush _brush;
+		private IntPtr? _hIcon = null;
 
 		#endregion
 
@@ -70,6 +75,8 @@ namespace HeadsetControl_Tray_Windows
 		{
 			try
 			{
+				if (_hIcon != null)
+					DestroyIcon(_hIcon.Value);
 				string chargeStatusString;
 				ChargeStatus chargeStatus = GetChargeStatus(out chargeStatusString);
 				_graphics.Clear(Color.Transparent);
@@ -87,8 +94,8 @@ namespace HeadsetControl_Tray_Windows
 						break;
 				}
 
-				IntPtr hIcon = _bitmap.GetHicon();
-				_notifyIcon.Icon = Icon.FromHandle(hIcon);
+				_hIcon = _bitmap.GetHicon();
+				_notifyIcon.Icon = Icon.FromHandle(_hIcon.Value);
 			}
 			catch (Exception ex)
 			{
